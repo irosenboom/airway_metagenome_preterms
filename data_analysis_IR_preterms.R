@@ -539,7 +539,7 @@ preterm <-
   stat_compare_means(aes(group = delivery_details), label = "p.signif",
                      label.y = c(3), hide.ns = TRUE, size = 6) +
   scale_color_discrete(breaks = c(1,2,4),
-                       labels = c("Elective CS", "Secondary CS", "Vaginal delivery")) +
+                       labels = c("Elective CS", "Non-elective CS", "Vaginal delivery")) +
   scale_y_continuous(limits = c(0,3.1), breaks = c(1,2,3)) +
   scale_x_continuous(limits = c(0, 510),
                      breaks = c(0,100,200,300,400,500)) +
@@ -564,6 +564,8 @@ ggline <- preterm +
   new_scale_color() +
   geom_point(data=metadata_healthy, aes(x = age_sampling, y = shannon_index, color = state,
                                         shape = state), alpha = 0.8, size = 2.2) +
+  geom_smooth(data=metadata_healthy, aes(x = age_sampling, y = shannon_index, color = state), 
+              alpha = 0.1, method = "lm") +
   scale_color_manual(values = c("Healthy" = "grey60"),
                      labels = c("Healthy full-term"),
                      name = "State") +
@@ -571,7 +573,13 @@ ggline <- preterm +
                      labels = c("Healthy full-term"),
                      name = "State")
 
+#ggline(data = metadata_healthy, x="age_sampling", y="shannon_index")
+
 ggline
+
+#ggplot(metadata_healthy, aes(x=age_sampling, y=shannon_index)) +
+  #geom_point() +
+  #geom_smooth(method = "lm")
 
 compare_means(shannon_index ~ timepoint_sampling,  data = metadata, p.adjust.method = "BH")
 
@@ -645,7 +653,111 @@ ggerrorplot(metadata_c_merge,
 core_rare_272_antibiotics <- 
   ggarrange(core_272_antibiotics, rare_272_antibiotics)
 core_rare_272_antibiotics
+
+##time point c simpson diversity
+core_272_antibiotics_simpson <-
+  ggerrorplot(metadata_c_merge, 
+              x = "neonatal_antibiotics", y = "simpson_core",
+              main = "", xlab = "", 
+              ylab = "\nSimpson diversity index",
+              desc_stat = "median", 
+              ggtheme = theme_pubr(base_size = 14, 
+                                   base_family = "Helvetica",
+                                   border = TRUE),
+              add = c("boxplot", "point"), add.params = list(color = "black")) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.title.x = element_text(size = 14)) +
+  scale_y_continuous(limits = c(0,1.2), breaks = c(0,0.5,1)) +
+  scale_x_discrete(breaks = c("0", "1"), labels = c("Untreated", "Treated")) +
+  labs(title = "", subtitle = "Core species (m9)", caption = "") + 
+  stat_compare_means(method = "wilcox.test", label.y = 1.1, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "left") 
+
+#calculate effect size
+wilcox_effsize(metadata_c_merge, simpson_core ~ neonatal_antibiotics,
+               ci = TRUE)
+wilcox_test(metadata_c_merge, simpson_core ~ neonatal_antibiotics)
+
+rare_272_antibiotics_simpson <-
+  ggerrorplot(metadata_c_merge, 
+              x = "neonatal_antibiotics", y = "simpson_rare",
+              main = "", xlab = "", 
+              ylab = "\nSimpson diversity index",
+              desc_stat = "median", 
+              ggtheme = theme_pubr(base_size = 14, 
+                                   base_family = "Helvetica",
+                                   border = TRUE),
+              add = c("boxplot", "point"), add.params = list(color = "black")) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.title.x = element_text(size = 14)) +
+  scale_y_continuous(limits = c(0,1.2), breaks = c(0,0.5,1)) +
+  scale_x_discrete(breaks = c("0", "1"), labels = c("Untreated", "Treated")) +
+  labs(title = "", subtitle = "Rare species (m9)", caption = "") +
+  stat_compare_means(method = "wilcox.test", label.y = 1.1, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "left")
                               
+#calculate effect size
+wilcox_effsize(metadata_c_merge, simpson_rare ~ neonatal_antibiotics,
+               ci = TRUE)
+wilcox_test(metadata_c_merge, simpson_rare ~ neonatal_antibiotics)
+
+core_rare_272_antibiotics_simpson <- 
+  ggarrange(core_272_antibiotics_simpson, rare_272_antibiotics_simpson)
+core_rare_272_antibiotics_simpson
+
+##time point c species number
+core_272_antibiotics_spec <-
+  ggerrorplot(metadata_c_merge, 
+              x = "neonatal_antibiotics", y = "specNumber_core",
+              main = "", xlab = "", 
+              ylab = "\nSpecies number",
+              desc_stat = "median", 
+              ggtheme = theme_pubr(base_size = 14, 
+                                   base_family = "Helvetica",
+                                   border = TRUE),
+              add = c("boxplot", "point"), add.params = list(color = "black")) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.title.x = element_text(size = 14)) +
+  scale_y_continuous(limits = c(0,32), breaks = c(0,10,20,30)) +
+  scale_x_discrete(breaks = c("0", "1"), labels = c("Untreated", "Treated")) +
+  labs(title = "", subtitle = "Core species (m9)", caption = "") + 
+  stat_compare_means(method = "wilcox.test", label.y = 30, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "left") 
+
+#calculate effect size
+wilcox_effsize(metadata_c_merge, specNumber_core ~ neonatal_antibiotics,
+               ci = TRUE)
+wilcox_test(metadata_c_merge, specNumber_core ~ neonatal_antibiotics)
+
+rare_272_antibiotics_spec <-
+  ggerrorplot(metadata_c_merge, 
+              x = "neonatal_antibiotics", y = "specNumber_rare",
+              main = "", xlab = "", 
+              ylab = "\nSpecies number",
+              desc_stat = "median", 
+              ggtheme = theme_pubr(base_size = 14, 
+                                   base_family = "Helvetica",
+                                   border = TRUE),
+              add = c("boxplot", "point"), add.params = list(color = "black")) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.title.x = element_text(size = 14)) +
+  scale_y_continuous(limits = c(0,85), breaks = c(0,20,40,60,80)) +
+  scale_x_discrete(breaks = c("0", "1"), labels = c("Untreated", "Treated")) +
+  labs(title = "", subtitle = "Rare species (m9)", caption = "") +
+  stat_compare_means(method = "wilcox.test", label.y = 82, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "left")
+
+#calculate effect size
+wilcox_effsize(metadata_c_merge, specNumber_rare ~ neonatal_antibiotics,
+               ci = TRUE)
+wilcox_test(metadata_c_merge, specNumber_rare ~ neonatal_antibiotics)
+
+core_rare_272_antibiotics_spec <- 
+  ggarrange(core_272_antibiotics_spec, rare_272_antibiotics_spec)
+core_rare_272_antibiotics_spec
+
+#bphc: bacterial burden
+wilcox_test(metadata_c_merge, bacterialBurden_rare ~ neonatal_antibiotics)
 
 #time point d
 
@@ -699,6 +811,201 @@ wilcox_test(metadata_d_merge, shannon_rare ~ neonatal_antibiotics)
 core_rare_450_antibiotics <- 
   ggarrange(core_450_antibiotics, rare_450_antibiotics)
 
+core_rare_450_antibiotics
+
+##time point d simpson diversity
+core_450_antibiotics_simpson <-
+  ggerrorplot(metadata_d_merge, 
+              x = "neonatal_antibiotics", y = "simpson_core",
+              main = "", xlab = "", 
+              ylab = "\nSimpson diversity index",
+              desc_stat = "median", 
+              ggtheme = theme_pubr(base_size = 14, 
+                                   base_family = "Helvetica",
+                                   border = TRUE),
+              add = c("boxplot", "point"), add.params = list(color = "black")) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.title.x = element_text(size = 14)) +
+  scale_y_continuous(limits = c(0,1.2), breaks = c(0,0.5,1)) +
+  scale_x_discrete(breaks = c("0", "1"), labels = c("Untreated", "Treated")) +
+  labs(title = "", subtitle = "Core species (m15)", caption = "") + 
+  stat_compare_means(method = "wilcox.test", label.y = 1.1, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "left") 
+
+#calculate effect size
+wilcox_effsize(metadata_d_merge, simpson_core ~ neonatal_antibiotics,
+               ci = TRUE)
+wilcox_test(metadata_d_merge, simpson_core ~ neonatal_antibiotics)
+
+rare_450_antibiotics_simpson <-
+  ggerrorplot(metadata_d_merge, 
+              x = "neonatal_antibiotics", y = "simpson_rare",
+              main = "", xlab = "", 
+              ylab = "\nSimpson diversity index",
+              desc_stat = "median", 
+              ggtheme = theme_pubr(base_size = 14, 
+                                   base_family = "Helvetica",
+                                   border = TRUE),
+              add = c("boxplot", "point"), add.params = list(color = "black")) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.title.x = element_text(size = 14)) +
+  scale_y_continuous(limits = c(0,1.2), breaks = c(0,0.5,1)) +
+  scale_x_discrete(breaks = c("0", "1"), labels = c("Untreated", "Treated")) +
+  labs(title = "", subtitle = "Rare species (m15)", caption = "") +
+  stat_compare_means(method = "wilcox.test", label.y = 1.1, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "left")
+
+#calculate effect size
+wilcox_effsize(metadata_d_merge, simpson_rare ~ neonatal_antibiotics,
+               ci = TRUE)
+wilcox_test(metadata_d_merge, simpson_rare ~ neonatal_antibiotics)
+
+core_rare_450_antibiotics_simpson <- 
+  ggarrange(core_450_antibiotics_simpson, rare_450_antibiotics_simpson)
+core_rare_450_antibiotics_simpson
+
+##time point d species number
+core_450_antibiotics_spec <-
+  ggerrorplot(metadata_d_merge, 
+              x = "neonatal_antibiotics", y = "specNumber_core",
+              main = "", xlab = "", 
+              ylab = "\nSpecies number",
+              desc_stat = "median", 
+              ggtheme = theme_pubr(base_size = 14, 
+                                   base_family = "Helvetica",
+                                   border = TRUE),
+              add = c("boxplot", "point"), add.params = list(color = "black")) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.title.x = element_text(size = 14)) +
+  scale_y_continuous(limits = c(0,32), breaks = c(0,10,20,30)) +
+  scale_x_discrete(breaks = c("0", "1"), labels = c("Untreated", "Treated")) +
+  labs(title = "", subtitle = "Core species (m15)", caption = "") + 
+  stat_compare_means(method = "wilcox.test", label.y = 30, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "left") 
+
+#calculate effect size
+wilcox_effsize(metadata_d_merge, specNumber_core ~ neonatal_antibiotics,
+               ci = TRUE)
+wilcox_test(metadata_d_merge, specNumber_core ~ neonatal_antibiotics)
+
+rare_450_antibiotics_spec <-
+  ggerrorplot(metadata_d_merge, 
+              x = "neonatal_antibiotics", y = "specNumber_rare",
+              main = "", xlab = "", 
+              ylab = "\nSpecies number",
+              desc_stat = "median", 
+              ggtheme = theme_pubr(base_size = 14, 
+                                   base_family = "Helvetica",
+                                   border = TRUE),
+              add = c("boxplot", "point"), add.params = list(color = "black")) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.title.x = element_text(size = 14)) +
+  scale_y_continuous(limits = c(0,85), breaks = c(0,20,40,60,80)) +
+  scale_x_discrete(breaks = c("0", "1"), labels = c("Untreated", "Treated")) +
+  labs(title = "", subtitle = "Rare species (m15)", caption = "") +
+  stat_compare_means(method = "wilcox.test", label.y = 82, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "left")
+
+#calculate effect size
+wilcox_effsize(metadata_d_merge, specNumber_rare ~ neonatal_antibiotics,
+               ci = TRUE)
+wilcox_test(metadata_d_merge, specNumber_rare ~ neonatal_antibiotics)
+
+core_rare_450_antibiotics_spec <- 
+  ggarrange(core_450_antibiotics_spec, rare_450_antibiotics_spec)
+core_rare_450_antibiotics_spec
+
+#######################################################################################
+#try to combine m9 and m15 ggerrorplots in one plot for species number, shannon and simpson
+##revision
+metadata_c_d$timepoint_sampling <- with(metadata_c_d,
+                                        ifelse(timepoint_sampling == 3, "m9",
+                                               ifelse(timepoint_sampling == 4, "m15", NA)))
+metadata_c_d$timepoint_sampling <- factor(metadata_c_d$timepoint_sampling, levels = c("m9", "m15"))
+
+metadata_c_d$neonatal_antibiotics_2 <- with(metadata_c_d,
+                                        ifelse(neonatal_antibiotics == 0, "Untreated",
+                                               ifelse(neonatal_antibiotics == 1, "Treated", 
+                                                      NA)))
+metadata_c_d$neonatal_antibiotics_2 <- factor(metadata_c_d$neonatal_antibiotics_2, 
+                                            levels = c("Untreated", "Treated"))
+high_spec <- ggerrorplot(metadata_c_d,
+            x = "neonatal_antibiotics_2", y = "specNumber_core",
+            facet.by = "timepoint_sampling",
+            main = "", xlab = "",
+            ylab = "Species number",
+            desc_stat = "median",
+            ggtheme = theme_pubr(base_size = 14, base_family = "Helvetica", border = TRUE),
+            add = c("boxplot", "point"), add.params = list(color = "black")) +
+  scale_y_continuous(limits = c(0,32), breaks = c(0,10,20,30)) +
+  stat_compare_means(method = "wilcox.test", label.y = 30, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "center")
+
+high_shannon <- ggerrorplot(metadata_c_d,
+            x = "neonatal_antibiotics_2", y = "shannon_core",
+            facet.by = "timepoint_sampling",
+            main = "", xlab = "",
+            ylab = "Shannon diversity",
+            desc_stat = "median",
+            ggtheme = theme_pubr(base_size = 14, base_family = "Helvetica", border = TRUE),
+            add = c("boxplot", "point"), add.params = list(color = "black")) +
+  scale_y_continuous(limits = c(0,3.5), breaks = c(0,1,2,3)) +
+  stat_compare_means(method = "wilcox.test", label.y = 3.2, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "center")
+
+high_simpson <- ggerrorplot(metadata_c_d,
+            x = "neonatal_antibiotics_2", y = "simpson_core",
+            facet.by = "timepoint_sampling",
+            main = "", xlab = "",
+            ylab = "Simpson diversity index",
+            desc_stat = "median",
+            ggtheme = theme_pubr(base_size = 14, base_family = "Helvetica", border = TRUE),
+            add = c("boxplot", "point"), add.params = list(color = "black")) +
+  scale_y_continuous(limits = c(0,1.1), breaks = c(0,0.5,1)) +
+  stat_compare_means(method = "wilcox.test", label.y = 1, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "center")
+
+
+low_spec <- ggerrorplot(metadata_c_d,
+            x = "neonatal_antibiotics_2", y = "specNumber_rare",
+            facet.by = "timepoint_sampling",
+            main = "", xlab = "",
+            ylab = "Species number",
+            desc_stat = "median",
+            ggtheme = theme_pubr(base_size = 14, base_family = "Helvetica", border = TRUE),
+            add = c("boxplot", "point"), add.params = list(color = "black")) +
+  scale_y_continuous(limits = c(0,85), breaks = c(0,20,40,60,80)) +
+  stat_compare_means(method = "wilcox.test", label.y = 82, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "center")
+
+
+low_shannon <- ggerrorplot(metadata_c_d,
+            x = "neonatal_antibiotics_2", y = "shannon_rare",
+            facet.by = "timepoint_sampling",
+            main = "", xlab = "",
+            ylab = "Shannon diversity",
+            desc_stat = "median",
+            ggtheme = theme_pubr(base_size = 14, base_family = "Helvetica", border = TRUE),
+            add = c("boxplot", "point"), add.params = list(color = "black")) +
+  scale_y_continuous(limits = c(0,3.5), breaks = c(0,1,2,3)) +
+  stat_compare_means(method = "wilcox.test", label.y = 3.2, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "center")
+
+low_simpson <- ggerrorplot(metadata_c_d,
+            x = "neonatal_antibiotics_2", y = "simpson_rare",
+            facet.by = "timepoint_sampling",
+            main = "", xlab = "",
+            ylab = "Simpson diversity index",
+            desc_stat = "median",
+            ggtheme = theme_pubr(base_size = 14, base_family = "Helvetica", border = TRUE),
+            add = c("boxplot", "point"), add.params = list(color = "black")) +
+  scale_y_continuous(limits = c(0,1.1), breaks = c(0,0.5,1)) +
+  stat_compare_means(method = "wilcox.test", label.y = 1, size = 4.5, label = "p.signif",
+                     family = "Helvetica", label.x.npc = "center")
+
+
+ggarrange(high_spec, low_spec, high_shannon, low_shannon, high_simpson, low_simpson,
+          ncol = 2, nrow = 3)
 
 #######################################################################################################
 #create alpha diversity figure (figure 2)
@@ -728,7 +1035,7 @@ mds_preterm <- metaMDS((bphc_t+0.000001), distance = "bray", k = 2, trymax = 100
 
 stressplot(mds_preterm)
 
-data.scores_preterm <- as.data.frame(scores(mds_preterm))
+data.scores_preterm <- as.data.frame(scores(mds_preterm)$sites)
 
 #order files
 metadata <- metadata[order(rownames(metadata)),]
@@ -838,6 +1145,74 @@ distance_preterm
 
 "anova"(betadisper_result)
 
+#permanova
+permanova_preterm <- adonis(bphc_t ~ timepoint_sampling_fac, data = metadata, 
+                            permutations = 999, method = "bray")
+
+print(as.data.frame(permanova_preterm$aov.tab)["group", "Pr(>F)"])
+
+#error, maybe based on empty samples?
+bphc_t_nozeros <- bphc_t[rowSums(bphc_t[])>0,]
+#remove those three samples also from metadata
+no_zeros <- rownames(bphc_t_nozeros)
+
+metadata_nozeros <- metadata[no_zeros,] 
+
+permanova_preterm2 <- adonis(bphc_t_nozeros ~ timepoint_sampling_fac, data = metadata_nozeros,
+                             permutations = 999, method = "bray")
+
+permanova_preterm2$aov.tab
+
+print(as.data.frame(permanova_preterm2$aov.tab)["timepoint_sampling_fac", "Pr(>F)"])
+#p=0.001
+
+
+permanova_preterm4 <- adonis2(bphc_t_nozeros ~ ventilation, 
+                             data = metadata_nozeros,
+                             permutations = 999, method = "bray")
+permanova_preterm4
+
+
+permanova_preterm5 <- adonis2(bphc_t_nozeros ~ group, data = metadata_nozeros,
+                             permutations = 999, method = "bray")
+
+permanova_preterm5
+
+permanova_preterm6 <- adonis2(bphc_t_nozeros ~ neonatal_antibiotics, data = metadata_nozeros,
+                              permutations = 999, method = "bray")
+
+permanova_preterm6
+
+
+permanova_preterm7 <- adonis2(bphc_t_nozeros ~ specnumber, data = metadata_nozeros,
+                              permutations = 999, method = "bray")
+
+permanova_preterm7
+
+permanova_preterm8 <- adonis2(bphc_t_nozeros ~ shannon_index, data = metadata_nozeros,
+                              permutations = 999, method = "bray")
+
+permanova_preterm8
+
+# checking the homogeneity condition
+dist <- vegdist(bphc_t_nozeros)
+anova(betadisper(dist, metadata_nozeros$timepoint_sampling_fac))
+
+permutest(betadisper(dist, metadata_nozeros$timepoint_sampling_fac), pairwise = TRUE)
+
+#check which taxa contribute most to the community differences
+coef <- coefficients(permanova_preterm2)["timepoint_sampling_fac2",]
+top.coef <- coef[rev(order(abs(coef)))[1:20]]
+
+par(mar = c(3,14,2,1))
+
+barplot(sort(top.coef), horiz = T, las = 1, main = "Top taxa")
+
+
+
+
+
+
 
 ######################################################################################################
 #beta diversity preterm m15/sampling d and age-matched healthy controls
@@ -868,7 +1243,7 @@ mds_selected_preterm_control <- metaMDS((bphc_selected_preterm_healthy_t), dista
 
 stressplot(mds_selected_preterm_control)
 
-data.scores_selected_preterm_control <- as.data.frame(scores(mds_selected_preterm_control))
+data.scores_selected_preterm_control <- as.data.frame(scores(mds_selected_preterm_control)$sites)
 
 #order files
 metadata_selected_preterm_healthy <-
@@ -930,6 +1305,56 @@ nmds_selected_preterm_healthy <-
 
 nmds_selected_preterm_healthy
 
+#revision: add arrows indicating the fit of continuous variables from envit to the plot
+scores_env <- as.data.frame(scores(data.envit_selected_preterm_control, display = "vectors")) 
+scores_env <- cbind(scores_env, factor = rownames(scores_env))
+scores_env$r <- data.envit_selected_preterm_control[["vectors"]][["r"]]
+scores_env$p <- data.envit_selected_preterm_control[["vectors"]][["pvals"]]
+
+#select on significance
+scores_signif <- subset(scores_env, p < 0.05)
+
+#select continuous variables: age and species number
+score_conti <- scores_signif[c(1,2),]
+score_conti$variable <- c("Age", "Species number")
+
+nmds_selected_preterm_healthy <-
+  ggplot(data.scores_selected_preterm_control,
+       aes(x=NMDS1, y=NMDS2
+           #, color=as.factor(state)
+           )
+       ) +
+  geom_point(aes(color = as.factor(state)), size = 3) +
+  stat_ellipse(data=data.scores_selected_preterm_control,
+               aes(x=NMDS1, y=NMDS2, color=as.factor(state)), 
+               geom="polygon", alpha=0.1) +
+  #coord_fixed() +
+  theme_pubr(border = TRUE) +
+  scale_y_continuous(limits = c(-1.7, 1.5),
+                     breaks = c(-1, 0, 1),
+                     labels = scales::number_format(accuracy = 0.1)) +
+  scale_x_continuous(limits = c(-2, 1.5),
+                     breaks = c(-2, -1, 0, 1),
+                     labels = scales::number_format(accuracy = 0.1)) +
+  scale_color_manual(breaks = c("Preterm", "Healthy"),
+                     labels = c("Preterm", "Full-term"),
+                     name = "State",
+                     values = c("Preterm" = "slateblue4",
+                                "Healthy" = "grey60")) +
+  scale_fill_discrete(breaks = c("Preterm", "Healthy"),
+                      labels= c("Preterm", "Full-term"),
+                      name = "State") +
+  scale_fill_manual(values = c("Preterm" = "slateblue4",
+                               "Healthy" = "grey60")) +
+  theme(legend.position = "right") +
+  guides(fill = "none", color = guide_legend(order = 1)) +
+  geom_segment(data = score_conti,
+               aes(x=0, xend=NMDS1, y=0, yend=NMDS2),
+               arrow = arrow(length = unit(0.25, "cm")), color = "grey10") +
+  geom_text_repel(data = score_conti, aes(label=variable, x=NMDS1, y=NMDS2))
+  
+
+
 #calculate distances from each point to group centroid
 vegdist_object_selected_preterm_healthy <- 
   vegdist(bphc_selected_preterm_healthy_t, method="bray", binary=FALSE)
@@ -954,9 +1379,9 @@ distance_selected_preterm_healthy <-
   theme_pubr(border = TRUE) +
   scale_y_continuous(limits = c(0.3, 1)) +
   scale_x_discrete(breaks = c("Healthy", "Preterm"),
-                   labels = c("Healthy full-term", "Preterm")) +
+                   labels = c("Full-term", "Preterm")) +
   scale_color_manual(breaks = c("Healthy", "Preterm"),
-                     labels = c("Healthy full-term", "Preterm"),
+                     labels = c("Full-term", "Preterm"),
                      name ="State",
                      values = c("Healthy" = "grey60",
                                 "Preterm" = "slateblue4")) +
@@ -968,17 +1393,78 @@ distance_selected_preterm_healthy <-
 
 distance_selected_preterm_healthy
 
-"anova"(betadisper_result_preterm_healthy)
+"anova"(betadisper_result_selected_preterm_healthy)
 
 #calculate effect size
 wilcox_effsize(betadisper_df_distances_selected_preterm_healthy, value ~ group,
                ci = TRUE)
 wilcox_test(betadisper_df_distances_selected_preterm_healthy, value ~ group)
 
+#add PERMANOVA
+
+permanova_preFullterm <- adonis2(bphc_selected_preterm_healthy_t ~ age_in_days, 
+                                data = metadata_selected_preterm_healthy,
+                                permutations = 999, method = "bray")
+permanova_preFullterm
+
+permanova_preFullterm2 <- adonis2(bphc_selected_preterm_healthy_t ~ state, 
+                                 data = metadata_selected_preterm_healthy, 
+                                 permutations = 999, method = "bray")
+permanova_preFullterm2
+
+permanova_preFullterm3 <- adonis2(bphc_selected_preterm_healthy_t ~ antimicrobial_therapy, 
+                                  data = metadata_selected_preterm_healthy, 
+                                  permutations = 999, method = "bray")
+permanova_preFullterm3
+
+
+permanova_preFullterm4 <- adonis2(bphc_selected_preterm_healthy_t ~ specnumber, 
+                                  data = metadata_selected_preterm_healthy, 
+                                  permutations = 999, method = "bray")
+permanova_preFullterm4
+
+
+permanova_preFullterm5 <- adonis2(bphc_selected_preterm_healthy_t ~ shannon_index, 
+                                  data = metadata_selected_preterm_healthy, 
+                                  permutations = 999, method = "bray")
+permanova_preFullterm5
+
+
+#create plot
 ggarrange(nmds_preterm, distance_preterm, 
           nmds_selected_preterm_healthy, distance_selected_preterm_healthy,
           ncol = 2, nrow = 2, widths = c(1, 0.4, 1, 0.4),
           labels = c("A", "B", "C", "D"))
+
+##revision: add PERMANOVA
+#non-parametric, based on dissimilarities
+
+#square root to minimize influence of most abundant groups
+preterm.mat <- sqrt(bphc_t)
+
+#create dissimilarity matrix
+preterm.dist <- vegdist(preterm.mat, method = "bray")
+
+preterm.div <- adonis2(preterm.dist~DIVERSITY, data = bphc_t, permutations = 999,
+                       method = "bray", strata = "PLOT")
+
+
+###test
+library(scatterplot3d)
+
+bphc_t_test <- bphc_t
+bphc_t_test$timepoint_sampling <- metadata$timepoint_sampling
+bphc_t_test$ventilation <- metadata$ventilation
+bphc_t_test$group <- metadata$group
+
+with(bphc_t_test, scatterplot3d(x = timepoint_sampling, y = ventilation, z = group,
+                                color))
+
+##test online data
+#install package BiocManager
+BiocManager::install("mia")
+
+library(mia)
 
 
 ######################################################################################################
@@ -1665,65 +2151,49 @@ write.table(spearman_nodes_d_subset, file="nodes_d_subset_pos.csv", sep=";", col
 ################################################################
 #import gephi statistics
 
-setwd("mnt/sfb900nfs/groups/tuemmler/ilona/preterm_manuscript/networks_pos_subset")
-
-gephi_out_b <- read_csv("gephi_out_b_pos.csv")
+gephi_out_b <- read_csv("gephi_out_b.csv")
 gephi_out_b <- data.frame(gephi_out_b)
 gephi_out_b$time_point <- "preterm m1"
 gephi_out_b$Experiment <- "Subgroups"
 gephi_out_b$group <- "Preterm"
 
-gephi_out_c <- read_csv("gephi_out_c_pos.csv")
+gephi_out_c <- read_csv("gephi_out_c.csv")
 gephi_out_c <- data.frame(gephi_out_c)
 gephi_out_c$time_point <- "preterm m9"
 gephi_out_c$Experiment <- "Subgroups"
 gephi_out_c$group <- "Preterm"
 
-gephi_out_d <- read_csv("gephi_out_d_pos.csv")
+gephi_out_d <- read_csv("gephi_out_d.csv")
 gephi_out_d <- data.frame(gephi_out_d)
 gephi_out_d$time_point <- "preterm m15"
 gephi_out_d$Experiment <- "Subgroups"
 gephi_out_d$group <- "Preterm"
 
-gephi_out_full <- read_csv("gephi_out_full_all_pos.csv")
+gephi_out_full <- read_csv("gephi_out_fullterm.csv")
 gephi_out_full <- data.frame(gephi_out_full)
 gephi_out_full$time_point <- "full-term m1-m14"
 gephi_out_full$Experiment <- "Reference"
 gephi_out_full$group <- "Reference"
 
-gephi_out_full_m9 <- read_csv("gephi_out_full_m9_pos.csv")
+gephi_out_full_m9 <- read_csv("gephi_out_fullterm_m9.csv")
 gephi_out_full_m9 <- data.frame(gephi_out_full_m9)
 gephi_out_full_m9$time_point <- "full-term m8-m12"
 gephi_out_full_m9$Experiment <- "Subgroups"
 gephi_out_full_m9$group <- "Full-term"
 
-gephi_out_full_m15 <- read_csv("gephi_out_full_m15_pos.csv")
+gephi_out_full_m15 <- read_csv("gephi_out_fullterm_m15.csv")
 gephi_out_full_m15 <- data.frame(gephi_out_full_m15)
 gephi_out_full_m15$time_point <- "full-term m10-m14"
 gephi_out_full_m15$Experiment <- "Subgroups"
 gephi_out_full_m15$group <- "Full-term"
 
-#gephi_out_c_subset, gephi_out_d_subset
+#gephi_out_c_subset
 
-gephi_out_c_subset <- read_csv("gephi_out_c_subset_pos.csv")
-gephi_out_c_subset <- data.frame(gephi_out_c_subset)
-gephi_out_c_subset$time_point <- "preterm m9"
-gephi_out_c_subset$Experiment <- "Subgroups"
-gephi_out_c_subset$group <- "Preterm"
 
-gephi_out_d_subset <- read_csv("gephi_out_d_subset_pos.csv")
-gephi_out_d_subset <- data.frame(gephi_out_d_subset)
-gephi_out_d_subset$time_point <- "preterm m15"
-gephi_out_d_subset$Experiment <- "Subgroups"
-gephi_out_d_subset$group <- "Preterm"
-
+#gephi_out_d_subset
 
 gephi_out <- data.frame(rbind(gephi_out_b, gephi_out_c, gephi_out_d, gephi_out_full,
                               gephi_out_full_m9, gephi_out_full_m15))
-
-gephi_out_subset <- data.frame(rbind(gephi_out_b, gephi_out_c_subset, gephi_out_d_subset, 
-                                     gephi_out_full, gephi_out_full_m9, gephi_out_full_m15))
-
 #gephi_out$time_point <- factor(gephi_out$Experiment, levels = c("m1", "m9", "m15", "Reference"))
 compare_time <- list(c("preterm m1", "preterm m9"), 
                      c("preterm m9", "preterm m15"),
@@ -1742,7 +2212,7 @@ dg_plot <-
   ggplot(gephi_out, aes(x=time_point, y=Degree, colour=group)) +
   geom_violin(width=0.5) + geom_point() + 
   stat_compare_means(comparisons = compare_time, label = "p.signif", 
-                     label.y = c(35, 40, 45, 50)) +
+                     label.y = c(40, 48, 56, 64)) +
   scale_x_discrete(labels = c("preterm m1" = "Preterm\nm1", "preterm m9" = "Preterm\nm9",
                               "preterm m15" = "Preterm\nm15",
                               "full-term m8-m12" = "Full-term\nm8-m12", 
@@ -1755,7 +2225,7 @@ dg_plot <-
   facet_grid(~Experiment, scales = "free_x", space="free") + 
   scale_colour_manual(values = c("Preterm"="black", "Reference"="gold3", 
                                  "Full-term"="grey60")) +
-  scale_y_continuous(limits = c(0,54), breaks = c(0,20,40)) +
+  scale_y_continuous(limits = c(0,72), breaks = c(0,20,40,60)) +
   geom_pointrange(mapping = aes(x = time_point, y = Degree),
                   stat = "summary",
                   fun.min = function(z) {quantile(z,0.25)},
@@ -1763,8 +2233,8 @@ dg_plot <-
                   fun = median,
                   colour="red", size=0.3)
 
-dg_plot
 
+dg_plot
 
 cc_plot <-
   ggplot(gephi_out, aes(x=time_point, y=closnesscentrality, colour=group)) +
@@ -1791,7 +2261,6 @@ cc_plot <-
                   colour="red", size=0.3)
 
 cc_plot
-
 
 bc_plot <-
   ggplot(gephi_out, aes(x=time_point, y=betweenesscentrality, colour=group)) +
@@ -1823,101 +2292,6 @@ network_stats_plot <- ggarrange(dg_plot, cc_plot, bc_plot, nrow= 1, labels = c("
 
 network_stats_plot
 
-##matched subsets
-
-gephi_out_subset$time_point <- factor(gephi_out_subset$time_point, 
-                               levels = c("preterm m1", "preterm m9", "preterm m15",
-                                          "full-term m8-m12", "full-term m10-m14", 
-                                          "full-term m1-m14"))
-gephi_out_subset$Experiment <- factor(gephi_out_subset$Experiment, 
-                               levels = c("Reference", "Subgroups"))
-
-dg_subset_plot <- 
-  ggplot(gephi_out_subset, aes(x=time_point, y=Degree, colour=group)) +
-  geom_violin(width=0.5) + geom_point() + 
-  stat_compare_means(comparisons = compare_time, label = "p.signif", 
-                     label.y = c(35, 40, 45, 50)) +
-  scale_x_discrete(labels = c("preterm m1" = "Preterm\nm1", "preterm m9" = "Preterm\nm9",
-                              "preterm m15" = "Preterm\nm15",
-                              "full-term m8-m12" = "Full-term\nm8-m12", 
-                              "full-term m10-m14" = "Full-term\nm10-m14",
-                              "full-term m1-m14" = "Full-term\nm1-m14")) +
-  theme_bw() + 
-  theme(panel.grid = element_blank(), strip.background = element_rect(fill="white"),
-        legend.position = "none") + 
-  xlab("") + ylab("Degree centrality") +
-  facet_grid(~Experiment, scales = "free_x", space="free") + 
-  scale_colour_manual(values = c("Preterm"="black", "Reference"="gold3", 
-                                 "Full-term"="grey60")) +
-  scale_y_continuous(limits = c(0,54), breaks = c(0,20,40)) +
-  geom_pointrange(mapping = aes(x = time_point, y = Degree),
-                  stat = "summary",
-                  fun.min = function(z) {quantile(z,0.25)},
-                  fun.max = function(z) {quantile(z,0.75)}, # median and  25% quartile and 75% quartile
-                  fun = median,
-                  colour="red", size=0.3)
-
-dg_subset_plot
-
-
-cc_subset_plot <-
-  ggplot(gephi_out_subset, aes(x=time_point, y=closnesscentrality, colour=group)) +
-  geom_violin(width=0.5) + geom_point() + 
-  stat_compare_means(comparisons = compare_time, label = "p.signif", label.y = c(1.1, 1.25,
-                                                                                 1.4, 1.55)) +
-  theme_bw() + 
-  theme(panel.grid = element_blank(), strip.background = element_rect(fill="white"),
-        legend.position = "none") + 
-  xlab("") + ylab("Closeness centrality") +
-  facet_grid(~Experiment, scales = "free_x", space="free") + 
-  scale_colour_manual(values=c("Preterm"="black", "Reference"="gold3", "Full-term"="grey60")) +
-  scale_x_discrete(labels = c("preterm m1" = "Preterm\nm1", "preterm m9" = "Preterm\nm9",
-                              "preterm m15" = "Preterm\nm15",
-                              "full-term m8-m12" = "Full-term\nm8-m12", 
-                              "full-term m10-m14" = "Full-term\nm10-m14",
-                              "full-term m1-m14" = "Full-term\nm1-m14"))  +
-  scale_y_continuous(limits = c(0,1.65)) +
-  geom_pointrange(mapping = aes(x = time_point, y = closnesscentrality),
-                  stat = "summary",
-                  fun.min = function(z) {quantile(z,0.25)},
-                  fun.max = function(z) {quantile(z,0.75)}, # median and  25% quartile and 75% quartile
-                  fun = median,
-                  colour="red", size=0.3)
-
-cc_subset_plot
-
-
-bc_subset_plot <-
-  ggplot(gephi_out_subset, aes(x=time_point, y=betweenesscentrality, colour=group)) +
-  geom_violin(width=0.5) + geom_point() + 
-  stat_compare_means(comparisons = compare_time, label = "p.signif", label.y = c(0.17, 0.20,
-                                                                                 0.23, 0.26)) +
-  theme_bw() + 
-  theme(panel.grid = element_blank(), strip.background = element_rect(fill="white"),
-        legend.position = "none") + 
-  xlab("") + ylab("Betweeness centrality") +
-  facet_grid(~Experiment, scales = "free_x", space="free") + 
-  scale_colour_manual(values=c("Preterm"="black", "Reference"="gold3", "Full-term"="grey60")) +
-  scale_x_discrete(labels = c("preterm m1" = "Preterm\nm1", "preterm m9" = "Preterm\nm9",
-                              "preterm m15" = "Preterm\nm15",
-                              "full-term m8-m12" = "Full-term\nm8-m12", 
-                              "full-term m10-m14" = "Full-term\nm10-m14",
-                              "full-term m1-m14" = "Full-term\nm1-m14"))  +
-  scale_y_continuous(limits = c(0,0.28)) +
-  geom_pointrange(mapping = aes(x = time_point, y = betweenesscentrality),
-                  stat = "summary",
-                  fun.min = function(z) {quantile(z,0.25)},
-                  fun.max = function(z) {quantile(z,0.75)}, # median and  25% quartile and 75% quartile
-                  fun = median,
-                  colour="red", size=0.3) 
-
-bc_subset_plot
-
-network_subset_stats_plot <- ggarrange(dg_subset_plot, cc_subset_plot, bc_subset_plot, nrow= 1, 
-                                       labels = c("A", "B", "C"))
-
-network_subset_stats_plot
-
 # Statistics
 #gephi_out_preterms <- gephi_out[gephi_out$Experiment=="Preterms",]
 kruskal.test(gephi_out$Degree, g=gephi_out$time_point)
@@ -1929,27 +2303,9 @@ rcompanion::epsilonSquared(gephi_out$betweenesscentrality, g=gephi_out$time_poin
 kruskal.test(gephi_out$closnesscentrality, g=gephi_out$time_point) 
 rcompanion::epsilonSquared(gephi_out$closnesscentrality, g=gephi_out$time_point, ci=TRUE)
 
-#subsr
-kruskal.test(gephi_out_subset$Degree, g=gephi_out_subset$time_point)
-rcompanion::epsilonSquared(gephi_out_subset$Degree, g=gephi_out_subset$time_point, ci=TRUE) 
-
-kruskal.test(gephi_out_subset$betweenesscentrality, g=gephi_out_subset$time_point) 
-rcompanion::epsilonSquared(gephi_out_subset$betweenesscentrality, g=gephi_out_subset$time_point, 
-                           ci=TRUE) 
-
-kruskal.test(gephi_out_subset$closnesscentrality, g=gephi_out_subset$time_point) 
-rcompanion::epsilonSquared(gephi_out_subset$closnesscentrality, g=gephi_out_subset$time_point, ci=TRUE)
-
 
 # export images
-pdf("network_stats.pdf", width=14, height=5)
+pdf("network_stats.pdf", width=12, height=4)
 network_stats_plot
 dev.off()
-
-pdf("network_subset_stats.pdf", width=14, height=5)
-network_subset_stats_plot
-dev.off()
-
-
-
 
